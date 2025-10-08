@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Number Guessing Game</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --primary: #0078d4;
+      --primary-dark: #005fa3;
+      --bg: #f9f9f9;
+      --text: #333;
+      --card-bg: #fff;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark {
+      --bg: #1e1e1e;
+      --text: #f0f0f0;
+      --card-bg: #2c2c2c;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .game-card {
+      background-color: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px var(--shadow);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin: 0.25rem;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    #feedback {
+      margin-top: 1rem;
+      font-size: 1rem;
+      min-height: 1.5rem;
+    }
+
+    #resetBtn {
+      display: none;
+    }
+
+    .stats {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .toggle-dark {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--primary);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-card">
+    <h2>🎯 Guess the Number</h2>
+    <select id="difficulty" onchange="setDifficulty()">
+      <option value="50">Easy (1–50)</option>
+      <option value="100" selected>Medium (1–100)</option>
+      <option value="500">Hard (1–500)</option>
+    </select>
+    <input type="number" id="guessInput" placeholder="Your guess..." min="1" />
+    <button onclick="checkGuess()">Submit</button>
+    <button id="resetBtn" onclick="resetGame()">Play Again</button>
+    <p id="feedback"></p>
+    <div class="stats" id="stats"></div>
+    <div class="toggle-dark" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</div>
+  </div>
+
+  <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"></audio>
+  <audio id="errorSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+
+  <script>
+    let maxRange = 100;
+    let secretNumber = Math.floor(Math.random() * maxRange) + 1;
+    let attempts = 0;
+    let gamesPlayed = parseInt(localStorage.getItem('gamesPlayed')) || 0;
+    let totalAttempts = parseInt(localStorage.getItem('totalAttempts')) || 0;
+    let bestScore = parseInt(localStorage.getItem('bestScore')) || null;
+
+    const input = document.getElementById('guessInput');
+    const feedback = document.getElementById('feedback');
+    const resetBtn = document.getElementById('resetBtn');
+    const stats = document.getElementById('stats');
+    const winSound = document.getElementById('winSound');
+    const errorSound = document.getElementById('errorSound');
+
+    input.focus();
+    input.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") checkGuess();
+    });
+
+    function setDifficulty() {
+      maxRange = parseInt(document.getElementById('difficulty').value);
+      resetGame();
+    }
+
+    function updateStats() {
+      let avg = gamesPlayed ? (totalAttempts / gamesPlayed).toFixed(1) : 0;
+      stats.innerHTML = `
+        🧮 Games Played: ${gamesPlayed}<br>
+        📊 Average Attempts: ${avg}<br>
+        🏆 Best Score: ${bestScore ?? '—'}
+      `;
+    }
+
+    function checkGuess() {
+      const guess = parseInt(input.value);
+      if (isNaN(guess) || guess < 1 || guess > maxRange) {
+        feedback.textContent = `⚠️ Enter a number between 1 and ${maxRange}.`;
+        errorSound.play();
+        return;
+      }
+
+      attempts++;
+
+      if (guess < secretNumber) {
+        feedback.textContent = "📉 Too low! Try again.";
+        errorSound.play();
+      } else if (guess > secretNumber) {
+        feedback.textContent = "📈 Too high! Try again.";
+        errorSound.play();
+      } else {
+        feedback.textContent = `🎉 Correct! You guessed it in ${attempts} tries.`;
+        winSound.play();
+        input.disabled = true;
+        resetBtn.style.display = 'inline-block';
+
+        gamesPlayed++;
+        totalAttempts += attempts;
+        if (!bestScore || attempts < bestScore) bestScore = attempts;
+
+        localStorage.setItem('gamesPlayed', gamesPlayed);
+        localStorage.setItem('totalAttempts', totalAttempts);
+        localStorage.setItem('bestScore', bestScore);
+
+        updateStats();
+      }
+    }
+
+    function resetGame() {
+      secretNumber = Math.floor(Math.random() * maxRange) + 1;
+      attempts = 0;
+      input.value = '';
+      input.disabled = false;
+      feedback.textContent = '';
+      resetBtn.style.display = 'none';
+      input.focus();
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+    }
+
+    updateStats();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
