@@ -180,7 +180,7 @@ const NG = {
     sound:   'gz-ng-sound',
   },
   state: {
-    secret: 0, maxRange: 100, attempts: 0, guesses: [],
+    answer: 0, maxRange: 100, attempts: 0, guesses: [],
     gameOver: false, streak: 0, soundOn: true,
     difficulty: 'medium', audioCtx: null,
   },
@@ -250,15 +250,15 @@ function ngCheck() {
   s.guesses.push(guess);
   ngUpdateCurrentStats();
 
-  if (guess === s.secret) {
+  if (guess === s.answer) {
     ngWin();
-  } else if (guess < s.secret) {
+  } else if (guess < s.answer) {
     fb.textContent = '📉 Too low! Try a higher number.';
     fb.className   = 'feedback too-low';
     hint.textContent = [ngWarmth(guess), ngTrend()].filter(Boolean).join(' · ');
     ngBeep(340, 0.1);
   } else {
-    // guess > s.secret
+    // guess > s.answer
     fb.textContent = '📈 Too high! Try a lower number.';
     fb.className   = 'feedback too-high';
     hint.textContent = [ngWarmth(guess), ngTrend()].filter(Boolean).join(' · ');
@@ -271,7 +271,7 @@ function ngCheck() {
 }
 
 function ngWarmth(guess) {
-  const frac = Math.abs(guess - NG.state.secret) / NG.state.maxRange;
+  const frac = Math.abs(guess - NG.state.answer) / NG.state.maxRange;
   if (frac <= 0.05) return '🔥 Very hot!';
   if (frac <= 0.15) return '♨️ Warm…';
   if (frac <= 0.35) return '🌡️ Cool…';
@@ -281,8 +281,8 @@ function ngWarmth(guess) {
 function ngTrend() {
   const g = NG.state.guesses;
   if (g.length < 2) return '';
-  const prev = Math.abs(g[g.length - 2] - NG.state.secret);
-  const curr = Math.abs(g[g.length - 1] - NG.state.secret);
+  const prev = Math.abs(g[g.length - 2] - NG.state.answer);
+  const curr = Math.abs(g[g.length - 1] - NG.state.answer);
   if (curr < prev) return 'Getting warmer 🌡️↑';
   if (curr > prev) return 'Getting colder 🌡️↓';
   return '';
@@ -299,7 +299,7 @@ function ngWin() {
   save(NG.K.streak, s.streak);
   ngUpdateBadge();
 
-  fb.textContent = `🎉 Correct! The number was ${s.secret}. Solved in ${s.attempts} ${s.attempts === 1 ? 'guess' : 'guesses'}!`;
+  fb.textContent = `🎉 Correct! The number was ${s.answer}. Solved in ${s.attempts} ${s.attempts === 1 ? 'guess' : 'guesses'}!`;
   fb.className   = 'feedback win';
   document.getElementById('ng-hint').textContent = '';
   sub.disabled = true;
@@ -362,7 +362,7 @@ function ngAddHistory() {
   h.unshift({
     difficulty: NG.state.difficulty,
     attempts:   NG.state.attempts,
-    answer:     NG.state.secret,
+    answer:     NG.state.answer,
     date:       new Date().toLocaleDateString(),
   });
   if (h.length > 10) h.pop();
@@ -391,7 +391,7 @@ function ngReset() {
   const diff = document.getElementById('ng-difficulty');
   s.difficulty = diff ? diff.value : 'medium';
   s.maxRange   = NG.DIFFS[s.difficulty].max;
-  s.secret     = ngSecret();
+  s.answer     = ngSecret();
   s.attempts   = 0;
   s.guesses    = [];
   s.gameOver   = false;
