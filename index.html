@@ -156,7 +156,9 @@
       if (e.key === "Enter" && !submitBtn.disabled) checkGuess();
     });
     input.addEventListener("input", function() {
-      submitBtn.disabled = input.value === '';
+      const valueNumber = input.valueAsNumber;
+      const hasValidNumber = !Number.isNaN(valueNumber);
+      submitBtn.disabled = input.value === '' || !hasValidNumber;
     });
 
     function setDifficulty() {
@@ -171,7 +173,7 @@
     }
 
     function updateCurrentStats() {
-      const guessText = guesses.length ? guesses.join(', ') : '—';
+      const guessText = guesses.length ? guesses.join(', ') : 'No guesses yet';
       currentStats.innerHTML = `
         🎯 Attempts this round: ${attempts}<br>
         🧾 Your guesses: ${guessText}
