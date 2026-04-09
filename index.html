@@ -128,7 +128,6 @@
         </div>
         <p id="ng-feedback" class="feedback" aria-live="assertive" aria-atomic="true"></p>
         <p id="ng-hint" class="hint-msg" aria-live="polite"></p>
-        <div id="ng-celebration" class="win-celebration" hidden aria-hidden="true"></div>
         <div id="ng-stats" class="stats-box" aria-label="Game statistics"></div>
         <details id="ng-histDetails" class="history-details">
           <summary>📜 Game History</summary>
@@ -239,6 +238,9 @@
   </footer>
 
 </div><!-- /app -->
+
+<!-- Shared confetti container (used by all games) -->
+<div id="confetti-box" class="win-celebration" hidden aria-hidden="true"></div>
 
 <!-- Toast -->
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>

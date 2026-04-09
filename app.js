@@ -151,7 +151,8 @@ function triggerConfetti(containerId) {
   setTimeout(() => { box.hidden = true; box.innerHTML = ''; }, 4500);
 }
 
-// ─── Storage helpers ──────────────────────────────────────────────────────────
+// ─── Storage helpers ─────────────────────────────────────────────────────────
+// Only non-sensitive game preferences and scores are persisted here.
 function load(key, fallback) {
   try {
     const v = localStorage.getItem(key);
@@ -309,7 +310,7 @@ function ngWin() {
   ngRenderStats();
   ngRenderHistory();
   ngBeep(523, 0.15);
-  triggerConfetti('ng-celebration');
+  triggerConfetti('confetti-box');
   showToast(`🎉 Solved in ${s.attempts} ${s.attempts === 1 ? 'guess' : 'guesses'}!`);
 }
 
@@ -461,7 +462,11 @@ function rpsPlay(player) {
   const rEl  = document.getElementById('rps-result');
 
   pEl.classList.remove('bounce'); bEl.classList.remove('bounce');
-  void pEl.offsetWidth; // force reflow to restart animation
+  // Reading offsetWidth forces a DOM reflow so the browser resets the
+  // animation before re-adding the class, making it replay from the start.
+  // eslint-disable-next-line no-unused-expressions
+  pEl.offsetWidth;
+  bEl.offsetWidth;
   pEl.textContent = RPS.EMOJIS[player];
   bEl.textContent = RPS.EMOJIS[bot];
   pEl.classList.add('bounce');
@@ -647,7 +652,7 @@ function tttEnd(result) {
       line.forEach(i => cells[i]?.classList.add('winning'));
     }
     if (result === 'X' || (s.mode === '2p' && result === 'O'))
-      triggerConfetti('ng-celebration');
+      triggerConfetti('confetti-box');
     showToast(label);
   }
 
@@ -801,7 +806,7 @@ function memWin() {
   } else {
     showToast(`🎉 Solved in ${s.moves} moves!`);
   }
-  triggerConfetti('ng-celebration');
+  triggerConfetti('confetti-box');
 }
 
 function memBar() {

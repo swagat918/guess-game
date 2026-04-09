@@ -257,7 +257,7 @@ body.light #app-header { background: rgba(240,240,255,.88); }
 .game-card:hover,.game-card:focus-within {
   transform: translateY(-5px);
   border-color: rgba(var(--primary-rgb),.35);
-  box-shadow: 0 16px 40px rgba(0,0,0,.3), 0 0 0 1px rgba(var(--primary-rgb),.12);
+  box-shadow: 0 16px 40px var(--shadow-sm), 0 0 0 1px rgba(var(--primary-rgb),.12);
   outline: none;
 }
 .game-card:focus {
