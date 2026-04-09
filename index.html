@@ -120,7 +120,7 @@
         <option value="100" selected>Medium (1–100)</option>
         <option value="500">Hard (1–500)</option>
       </select>
-      <input type="number" id="guessInput" placeholder="Your guess..." min="1" max="100" aria-label="Enter your guess" aria-describedby="rangeHint" />
+      <input type="number" id="guessInput" placeholder="Your guess..." min="1" aria-label="Enter your guess" aria-describedby="rangeHint" />
       <button id="submitBtn" type="button" onclick="checkGuess()" aria-label="Submit your guess">Submit</button>
       <button id="resetBtn" onclick="resetGame()">Play Again</button>
       <p id="feedback" aria-live="polite"></p>
@@ -133,13 +133,7 @@
   <audio id="errorSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
 
   <script>
-    let maxRange = 100;
-    let secretNumber = Math.floor(Math.random() * maxRange) + 1;
-    let attempts = 0;
-    let gamesPlayed = parseInt(localStorage.getItem('gamesPlayed')) || 0;
-    let totalAttempts = parseInt(localStorage.getItem('totalAttempts')) || 0;
-    let bestScore = parseInt(localStorage.getItem('bestScore')) || null;
-
+    const difficulty = document.getElementById('difficulty');
     const input = document.getElementById('guessInput');
     const feedback = document.getElementById('feedback');
     const resetBtn = document.getElementById('resetBtn');
@@ -149,6 +143,13 @@
     const stats = document.getElementById('stats');
     const winSound = document.getElementById('winSound');
     const errorSound = document.getElementById('errorSound');
+
+    let maxRange = parseInt(difficulty.value);
+    let secretNumber = Math.floor(Math.random() * maxRange) + 1;
+    let attempts = 0;
+    let gamesPlayed = parseInt(localStorage.getItem('gamesPlayed')) || 0;
+    let totalAttempts = parseInt(localStorage.getItem('totalAttempts')) || 0;
+    let bestScore = parseInt(localStorage.getItem('bestScore')) || null;
     let guesses = [];
 
     input.focus();
@@ -156,11 +157,15 @@
       if (e.key === "Enter" && !submitBtn.disabled) checkGuess();
     });
     input.addEventListener("input", function() {
-      submitBtn.disabled = input.value === '' || Number.isNaN(input.valueAsNumber);
+      const valueNumber = input.valueAsNumber;
+      submitBtn.disabled = input.value === ''
+        || Number.isNaN(valueNumber)
+        || valueNumber < 1
+        || valueNumber > maxRange;
     });
 
     function setDifficulty() {
-      maxRange = parseInt(document.getElementById('difficulty').value);
+      maxRange = parseInt(difficulty.value);
       resetGame();
     }
 
@@ -171,7 +176,11 @@
     }
 
     function updateCurrentStats() {
-      const guessText = guesses.length ? guesses.join(', ') : 'No guesses yet';
+      const guessText = guesses.length
+        ? (guesses.length > 5
+          ? `${guesses.slice(-5).join(', ')} (and ${guesses.length - 5} earlier)`
+          : guesses.join(', '))
+        : 'No guesses yet';
       currentStats.innerHTML = `
         🎯 Attempts this round: ${attempts}<br>
         🧾 Your guesses: ${guessText}
