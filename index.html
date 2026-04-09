@@ -153,10 +153,10 @@
 
     input.focus();
     input.addEventListener("keypress", function(e) {
-      if (e.key === "Enter") checkGuess();
+      if (e.key === "Enter" && !submitBtn.disabled) checkGuess();
     });
     input.addEventListener("input", function() {
-      submitBtn.disabled = !input.value.trim();
+      submitBtn.disabled = input.value.trim().length === 0;
     });
 
     function setDifficulty() {
