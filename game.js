@@ -195,11 +195,14 @@ function saveHistory(history) {
 // ─── Game Logic ───────────────────────────────────────────────────────────────
 
 /**
- * Generates a new secret number within the current range.
+ * Generates a new secret number within the current range using the
+ * Web Crypto API for unbiased randomness.
  * @returns {number}
  */
 function generateSecret() {
-  return Math.floor(Math.random() * maxRange) + 1;
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return (array[0] % maxRange) + 1;
 }
 
 /**
