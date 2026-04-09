@@ -163,6 +163,17 @@ function save(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
 }
 
+// ─── Fisher-Yates shuffle ─────────────────────────────────────────────────────
+/** Returns a new array with elements in uniformly random order. */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    GAME 1 · NUMBER GUESSING
    ═══════════════════════════════════════════════════════════════════════════════ */
@@ -464,9 +475,8 @@ function rpsPlay(player) {
   pEl.classList.remove('bounce'); bEl.classList.remove('bounce');
   // Reading offsetWidth forces a DOM reflow so the browser resets the
   // animation before re-adding the class, making it replay from the start.
-  // eslint-disable-next-line no-unused-expressions
-  pEl.offsetWidth;
-  bEl.offsetWidth;
+  void pEl.offsetWidth;
+  void bEl.offsetWidth;
   pEl.textContent = RPS.EMOJIS[player];
   bEl.textContent = RPS.EMOJIS[bot];
   pEl.classList.add('bounce');
@@ -723,8 +733,8 @@ function memNewGame() {
   Object.assign(s, { flipped:[], matched:0, moves:0, seconds:0, locked:false, started:false });
 
   const pairs  = 8;
-  const chosen = [...MEM.EMOJIS].sort(() => Math.random() - 0.5).slice(0, pairs);
-  s.cards      = [...chosen, ...chosen].sort(() => Math.random() - 0.5);
+  const chosen = shuffle(MEM.EMOJIS).slice(0, pairs);
+  s.cards      = shuffle([...chosen, ...chosen]);
 
   memRender();
   memBar();
