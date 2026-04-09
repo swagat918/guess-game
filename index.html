@@ -123,7 +123,7 @@
       <input type="number" id="guessInput" placeholder="Your guess..." min="1" aria-label="Enter your guess" aria-describedby="rangeHint" />
       <button id="submitBtn" type="button" onclick="checkGuess()" aria-label="Submit your guess">Submit</button>
       <button id="resetBtn" onclick="resetGame()">Play Again</button>
-      <p id="feedback" aria-live="assertive"></p>
+      <p id="feedback" aria-live="polite"></p>
       <div class="stats" id="currentStats"></div>
       <div class="stats" id="stats"></div>
       <div class="toggle-dark" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</div>
@@ -163,8 +163,7 @@
 
     function canSubmitGuess() {
       const valueNumber = input.valueAsNumber;
-      return input.value !== ''
-        && !Number.isNaN(valueNumber)
+      return !Number.isNaN(valueNumber)
         && valueNumber >= 1
         && valueNumber <= maxRange;
     }
@@ -181,15 +180,25 @@
     }
 
     function updateCurrentStats() {
-      const guessText = guesses.length
-        ? (guesses.length > MAX_DISPLAYED_GUESSES
-          ? `${guesses.slice(-MAX_DISPLAYED_GUESSES).join(', ')} (and ${guesses.length - MAX_DISPLAYED_GUESSES} earlier)`
-          : guesses.join(', '))
-        : 'No guesses yet';
+      const guessText = formatGuessHistory();
       currentStats.innerHTML = `
         🎯 Attempts this round: ${attempts}<br>
         🧾 Your guesses: ${guessText}
       `;
+    }
+
+    function formatGuessHistory() {
+      if (!guesses.length) {
+        return 'No guesses yet';
+      }
+
+      if (guesses.length <= MAX_DISPLAYED_GUESSES) {
+        return guesses.join(', ');
+      }
+
+      const recentGuesses = guesses.slice(-MAX_DISPLAYED_GUESSES).join(', ');
+      const earlierCount = guesses.length - MAX_DISPLAYED_GUESSES;
+      return `${recentGuesses} (and ${earlierCount} earlier)`;
     }
 
     function updateStats() {
