@@ -88,14 +88,24 @@ function navigateTo(viewId) {
 
 const gameInited = {};
 function onGameEnter(id) {
-  if (gameInited[id]) return;
-  gameInited[id] = true;
-  switch (id) {
-    case 'number': initNumberGame();  break;
-    case 'rps':    initRPS();         break;
-    case 'ttt':    initTTT();         break;
-    case 'memory': initMemory();      break;
-    case 'simon':  initSimon();       break;
+  if (!gameInited[id]) {
+    gameInited[id] = true;
+    switch (id) {
+      case 'number': initNumberGame();  break;
+      case 'rps':    initRPS();         break;
+      case 'ttt':    initTTT();         break;
+      case 'memory': initMemory();      break;
+      case 'simon':  initSimon();       break;
+    }
+  } else {
+    // Game already initialised – reset to a fresh state on each re-entry
+    switch (id) {
+      case 'number': ngReset();    break;
+      case 'ttt':    tttReset();   break;
+      case 'memory': memNewGame(); break;
+      case 'simon':  simonReset(); break;
+      // RPS keeps its running score across visits intentionally
+    }
   }
 }
 
@@ -650,10 +660,13 @@ function tttEnd(result) {
     showToast("🤝 Draw!");
   } else {
     s.scores[result]++;
-    const label = s.mode === '2p'
-      ? `Player ${result} wins! 🎉`
-      : result === 'X' ? 'You win! 🎉' : 'AI wins! 🤖';
-    stEl.textContent = (result === 'X' ? '🎉 ' : '🤖 ') + label;
+    let label;
+    if (s.mode === '2p') {
+      label = result === 'X' ? '🎉 Player X wins!' : '🎉 Player O wins!';
+    } else {
+      label = result === 'X' ? '🎉 You win!' : '🤖 AI wins!';
+    }
+    stEl.textContent = label;
 
     // Highlight winning cells
     const line = tttWinLine(s.board);
@@ -683,7 +696,8 @@ function tttStatus() {
 
 function tttUpdatePill() {
   const el = document.getElementById('ttt-scorePill');
-  if (el) el.textContent = `X: ${TTT.state.scores.X} – O: ${TTT.state.scores.O}`;
+  const { X, O, draws } = TTT.state.scores;
+  if (el) el.textContent = `X: ${X} – O: ${O} – D: ${draws}`;
 }
 
 function tttRender() {
@@ -863,6 +877,9 @@ function initSimon() {
   });
 
   document.getElementById('simon-start')?.addEventListener('click', simonStart);
+
+  // Ensure buttons start disabled until game starts
+  document.querySelectorAll('.simon-btn').forEach(b => b.disabled = true);
 }
 
 function simonStart() {
@@ -947,6 +964,18 @@ function simonFail() {
   // Flash all red briefly
   document.querySelectorAll('.simon-btn').forEach(b => b.classList.add('active'));
   setTimeout(() => document.querySelectorAll('.simon-btn').forEach(b => b.classList.remove('active')), 500);
+}
+
+function simonReset() {
+  const s = SIMON.state;
+  s.sequence = [];
+  s.player   = [];
+  s.level    = 0;
+  s.canInput = false;
+  document.getElementById('simon-level').textContent  = 0;
+  document.getElementById('simon-status').textContent = 'Press Start to play!';
+  document.getElementById('simon-start').disabled     = false;
+  document.querySelectorAll('.simon-btn').forEach(b => { b.disabled = true; b.classList.remove('active'); });
 }
 
 function simonUpdateBest() {
