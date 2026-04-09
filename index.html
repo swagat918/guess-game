@@ -123,7 +123,7 @@
       <input type="number" id="guessInput" placeholder="Your guess..." min="1" aria-label="Enter your guess" aria-describedby="rangeHint" />
       <button id="submitBtn" type="button" onclick="checkGuess()" aria-label="Submit your guess">Submit</button>
       <button id="resetBtn" onclick="resetGame()">Play Again</button>
-      <p id="feedback" aria-live="polite"></p>
+      <p id="feedback" aria-live="assertive"></p>
       <div class="stats" id="currentStats"></div>
       <div class="stats" id="stats"></div>
       <div class="toggle-dark" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</div>
@@ -144,6 +144,7 @@
     const winSound = document.getElementById('winSound');
     const errorSound = document.getElementById('errorSound');
 
+    const MAX_DISPLAYED_GUESSES = 5;
     let maxRange = parseInt(difficulty.value);
     let secretNumber = Math.floor(Math.random() * maxRange) + 1;
     let attempts = 0;
@@ -154,15 +155,19 @@
 
     input.focus();
     input.addEventListener("keypress", function(e) {
-      if (e.key === "Enter" && !submitBtn.disabled) checkGuess();
+      if (e.key === "Enter" && canSubmitGuess()) checkGuess();
     });
     input.addEventListener("input", function() {
-      const valueNumber = input.valueAsNumber;
-      submitBtn.disabled = input.value === ''
-        || Number.isNaN(valueNumber)
-        || valueNumber < 1
-        || valueNumber > maxRange;
+      submitBtn.disabled = !canSubmitGuess();
     });
+
+    function canSubmitGuess() {
+      const valueNumber = input.valueAsNumber;
+      return input.value !== ''
+        && !Number.isNaN(valueNumber)
+        && valueNumber >= 1
+        && valueNumber <= maxRange;
+    }
 
     function setDifficulty() {
       maxRange = parseInt(difficulty.value);
@@ -177,8 +182,8 @@
 
     function updateCurrentStats() {
       const guessText = guesses.length
-        ? (guesses.length > 5
-          ? `${guesses.slice(-5).join(', ')} (and ${guesses.length - 5} earlier)`
+        ? (guesses.length > MAX_DISPLAYED_GUESSES
+          ? `${guesses.slice(-MAX_DISPLAYED_GUESSES).join(', ')} (and ${guesses.length - MAX_DISPLAYED_GUESSES} earlier)`
           : guesses.join(', '))
         : 'No guesses yet';
       currentStats.innerHTML = `
