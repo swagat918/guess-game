@@ -1,10 +1,11 @@
 {
-  "name": "Number Guessing Game",
-  "short_name": "GuessGame",
+  "name": "GameZone – Mini Games by Swagat Sigdel",
+  "short_name": "GameZone",
+  "description": "A premium mini-game portal with Number Guessing, Rock Paper Scissors, Tic-Tac-Toe, Memory Match, and Simon Says.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#f9f9f9",
-  "theme_color": "#0078d4",
+  "background_color": "#070711",
+  "theme_color": "#6366f1",
   "icons": [
     {
       "src": "icon.png",
