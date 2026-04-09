@@ -156,7 +156,7 @@
       if (e.key === "Enter" && !submitBtn.disabled) checkGuess();
     });
     input.addEventListener("input", function() {
-      submitBtn.disabled = input.value.trim().length === 0;
+      submitBtn.disabled = input.value === '';
     });
 
     function setDifficulty() {
@@ -165,7 +165,7 @@
     }
 
     function updateRangeHint() {
-      rangeHint.textContent = `I'm thinking of a number between 1 and ${maxRange}.`;
+      rangeHint.textContent = `I am thinking of a number between 1 and ${maxRange}.`;
       input.max = maxRange;
       input.placeholder = `Your guess (1–${maxRange})`;
     }
