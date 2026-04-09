@@ -214,8 +214,8 @@ function getWarmthHint(guess) {
   const distance = Math.abs(guess - secretNumber);
   const fraction = distance / maxRange;
   if (fraction <= HOT_THRESHOLD_PCT)  return '🔥 Very hot!';
-  if (fraction <= WARM_THRESHOLD_PCT) return '♨️  Warm…';
-  if (fraction <= 0.35)               return '🌡️  Cool…';
+  if (fraction <= WARM_THRESHOLD_PCT) return '♨️ Warm…';
+  if (fraction <= 0.35)               return '🌡️ Cool…';
   return '🧊 Cold!';
 }
 
@@ -341,7 +341,7 @@ function addHistoryEntry() {
     difficulty: DIFFICULTIES[currentDifficulty].label,
     attempts,
     answer: secretNumber,
-    date: new Date().toLocaleString(),
+    date: new Date().toLocaleString('en', { dateStyle: 'short', timeStyle: 'short' }),
   });
   if (history.length > MAX_HISTORY_ENTRIES) history.pop();
   saveHistory(history);
