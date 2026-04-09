@@ -1,11 +1,11 @@
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME    = `guess-game-${CACHE_VERSION}`;
 
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/style.css',
-  '/game.js',
+  '/app.js',
   '/manifest.json',
   '/icon.png',
 ];
